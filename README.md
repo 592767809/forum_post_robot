@@ -3,6 +3,6 @@
 
 ## 前提
 
-    1.使用ClassAndMoviesDownBYYG作为下载工具
+    1.使用
     
 
