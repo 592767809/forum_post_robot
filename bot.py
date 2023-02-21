@@ -21,7 +21,14 @@ class Bot(object):
         self.bot_type = bot_type
 
     def init_bot(self, option):
-        pass
+        if self.bot_type == self.TG:
+            pass
+        elif self.bot_type == self.DIS:
+            pass
+        elif self.bot_type == self.WX:
+            pass
+        else:
+            raise Exception('')
 
     def send_message(self):
         if self.bot_type == self.TG:
