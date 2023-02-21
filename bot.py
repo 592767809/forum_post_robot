@@ -30,7 +30,7 @@ class Bot(object):
         elif self.bot_type == self.WX:
             bot = requests_html.HTMLSession()
         else:
-            raise Exception('')
+            raise Exception('未知的机器人类型')
 
     def send_message(self, user, message):
         if self.bot_type == self.TG:
@@ -40,4 +40,4 @@ class Bot(object):
         elif self.bot_type == self.WX:
             pass
         else:
-            raise Exception('')
+            raise Exception('未知的机器人类型')
