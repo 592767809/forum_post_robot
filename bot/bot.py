@@ -1,5 +1,6 @@
 
 import os
+import time
 import requests_html
 
 
@@ -26,9 +27,10 @@ class Bot(object):
             self.token = option['token']
             self.user = option['chat_id']
         elif self.bot_type == self.DIS:
-            pass
+            self.token = option['token']
+            self.user = option['chat_id']
         elif self.bot_type == self.WX:
-            pass
+            self.token = option['token']
         else:
             raise Exception('未知的机器人类型')
 
@@ -40,7 +42,15 @@ class Bot(object):
             }
             self.requests.post(f'https://api.telegram.org/bot{self.token}/sendMessage', json=data, timeout=10)
         elif self.bot_type == self.DIS:
-            pass
+            headers = {
+                'authorization': self.token
+            }
+            data = {
+                'content': message,
+                'nonce': str((int(time.time() * 1000) - 1420070400000) << 22),
+                'tts': False
+            }
+            self.requests.post(f'https://discord.com/api/v9/channels/{self.user}/messages', headers=headers, json=data)
         elif self.bot_type == self.WX:
             data = {
                 "msgtype": "text",

@@ -5,6 +5,10 @@ import requests_html
 from Crypto.Hash import MD5
 from urllib import parse
 
+proxies = {
+    'http': None,
+    'https': None
+}
 
 def main(item):
     requests = requests_html.HTMLSession()
@@ -14,7 +18,7 @@ def main(item):
     vid = item['链接'].split('/id_')[-1].split('.')[0]
     while have_more:
         url = 'https://log.mmstat.com/eg.js'
-        response = requests.get(url)
+        response = requests.get(url, proxies=proxies)
         cna = response.headers['ETag'][1:-1]
         requests.cookies.set('cna', cna)
         appKey = '24679788'  # 定值
@@ -28,7 +32,7 @@ def main(item):
             'data': json.dumps({}, separators=(',', ':'))
         }
         url = 'https://acs.youku.com/h5/mtop.youku.subscribe.service.subscribe.favourite.batchisfav/3.0/?' + parse.urlencode(parms)
-        requests.get(url)
+        requests.get(url, proxies=proxies)
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
         }
@@ -63,7 +67,7 @@ def main(item):
             'data': json.dumps(data, separators=(',', ':'))
         }
         url = 'https://acs.youku.com/h5/mtop.youku.columbus.gateway.new.execute/1.0/?' + parse.urlencode(parms)
-        response = requests.get(url, headers=headers).json()
+        response = requests.get(url, headers=headers, proxies=proxies).json()
         session = json.loads(response['data']['2019030100']['data']['data']['session'])
         if session['lastItemIndex'] == '100':
             inx += 100

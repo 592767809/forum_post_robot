@@ -27,7 +27,8 @@ class Consumer(threading.Thread):
                 locale_time = time.strftime("%H:%M:%S", time.localtime())
                 locale_time = time.strptime(locale_time, '%H:%M:%S')
                 locale_time = locale_time.tm_hour * 3600 + locale_time.tm_min * 60 + locale_time.tm_sec
-
+                if locale_time > 84600:
+                    break
                 server_time = time.strptime(item['更新时间'], '%H:%M:%S')
                 server_time = server_time.tm_hour * 3600 + server_time.tm_min * 60 + server_time.tm_sec + item['偏移时间']
                 if locale_time >= server_time:
