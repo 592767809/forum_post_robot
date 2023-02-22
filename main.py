@@ -2,6 +2,7 @@
 import time
 import queue
 import threading
+import traceback
 from urllib import parse
 from bot.bot import Bot
 from config import config
@@ -41,25 +42,29 @@ class Consumer(threading.Thread):
                         break
                     else:
                         item['偏移时间'] += self.timer  # 下次检查的秒数
-                time.sleep(self.timer // 5)
+                time.sleep(self.timer // 10)
                 self.work_queue.put(item)
 
 
 def check_renew(item):
-    params = parse.urlparse(item['链接'])
-    if params.hostname == 'v.youku.com':
-        return youku.main(item)
-    else:
-        raise Exception('未知的链接类型：' + item['链接'])
+    try:
+        params = parse.urlparse(item['链接'])
+        if params.hostname == 'v.youku.com':
+            return youku.main(item)
+        else:
+            raise Exception('未知的链接类型：' + item['链接'])
+    except:
+        print(traceback.format_exc())
+        return False
 
 
 def main():
-
     bot = Bot(Bot.TG)
-    # bot.init_bot({
-    #     'token': config.bot_token,
-    #     'chat_id': config.chat_id
-    # })
+    # bot.set_proxies('7890')  # 如果需要代理就取消注释
+    bot.init_bot({
+        'token': config.bot_token,
+        'chat_id': config.chat_id
+    })
     work_queue = queue.Queue(maxsize=0)
     thread_list = []
     print('监控目录：')

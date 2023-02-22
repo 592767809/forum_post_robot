@@ -1,10 +1,6 @@
 
+import os
 import requests_html
-
-try:
-    import telegram
-except:
-    telegram = None
 
 
 class Bot(object):
@@ -16,28 +12,33 @@ class Bot(object):
     def __init__(self, bot_type):
         assert bot_type in [1, 2, 3]
         self.bot_type = bot_type
-        self.bot = None
+        self.requests = requests_html.HTMLSession()
         self.token = ''
         self.user = ''
 
+    @staticmethod
+    def set_proxies(port: str):
+        os.environ['HTTP_PROXY'] = 'http://127.0.0.1:' + port
+        os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:' + port
+
     def init_bot(self, option):
         if self.bot_type == self.TG:
-            assert telegram
             self.token = option['token']
             self.user = option['chat_id']
-            self.bot = telegram.Bot(self.token)
         elif self.bot_type == self.DIS:
-            self.bot = requests_html.HTMLSession()
+            pass
         elif self.bot_type == self.WX:
-            self.token = option['token']
-            self.bot = requests_html.HTMLSession()
+            pass
         else:
             raise Exception('未知的机器人类型')
 
     def send_message(self, message):
-        assert self.bot
         if self.bot_type == self.TG:
-            self.bot.sendMessage(self.user, message)
+            data = {
+                'chat_id': self.user,
+                'text': message
+            }
+            self.requests.post(f'https://api.telegram.org/bot{self.token}/sendMessage', json=data, timeout=10)
         elif self.bot_type == self.DIS:
             pass
         elif self.bot_type == self.WX:
@@ -48,6 +49,6 @@ class Bot(object):
                     "mentioned_list": ["@all"]
                 }
             }
-            self.bot.post('https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' + self.token, json=data)
+            self.requests.post(f'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={self.token}', json=data)
         else:
             raise Exception('未知的机器人类型')
