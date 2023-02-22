@@ -6,9 +6,6 @@ try:
 except:
     telegram = None
 
-# bot = telegram.Bot('')
-# bot.sendMessage()
-
 
 class Bot(object):
 
@@ -20,21 +17,25 @@ class Bot(object):
         assert bot_type in [1, 2, 3]
         self.bot_type = bot_type
         self.bot = None
+        self.token = ''
+        self.user = ''
 
     def init_bot(self, option):
         if self.bot_type == self.TG:
             assert telegram
-            bot = telegram.Bot(option['token'])
+            self.token = option['token']
+            self.bot = telegram.Bot(self.token)
         elif self.bot_type == self.DIS:
-            bot = requests_html.HTMLSession()
+            self.bot = requests_html.HTMLSession()
         elif self.bot_type == self.WX:
-            bot = requests_html.HTMLSession()
+            self.bot = requests_html.HTMLSession()
         else:
             raise Exception('未知的机器人类型')
 
     def send_message(self, user, message):
+        assert self.bot
         if self.bot_type == self.TG:
-            pass
+            self.bot.sendMessage()
         elif self.bot_type == self.DIS:
             pass
         elif self.bot_type == self.WX:
