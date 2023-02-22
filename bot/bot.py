@@ -29,6 +29,7 @@ class Bot(object):
         elif self.bot_type == self.DIS:
             self.bot = requests_html.HTMLSession()
         elif self.bot_type == self.WX:
+            self.token = option['token']
             self.bot = requests_html.HTMLSession()
         else:
             raise Exception('未知的机器人类型')
@@ -40,6 +41,13 @@ class Bot(object):
         elif self.bot_type == self.DIS:
             pass
         elif self.bot_type == self.WX:
-            pass
+            data = {
+                "msgtype": "text",
+                "text": {
+                    "content": message,
+                    "mentioned_list": ["@all"]
+                }
+            }
+            self.bot.post('https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' + self.token, json=data)
         else:
             raise Exception('未知的机器人类型')

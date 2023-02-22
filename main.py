@@ -56,12 +56,13 @@ def check_renew(item):
 def main():
 
     bot = Bot(Bot.TG)
-    bot.init_bot({
-        'token': config.bot_token,
-        'chat_id': config.chat_id
-    })
+    # bot.init_bot({
+    #     'token': config.bot_token,
+    #     'chat_id': config.chat_id
+    # })
     work_queue = queue.Queue(maxsize=0)
     thread_list = []
+    print('监控目录：')
     for item in calendar_dict:
         item['偏移时间'] = 0
         item['追剧日历'] = item['追剧日历'][time.strftime("%Y-%m-%d", time.localtime())]
@@ -77,6 +78,7 @@ def main():
             item['更新时间'] = time.strftime("%H:%M:%S", time.localtime())
 
         work_queue.put(item)
+        print(f'{item["标题"]} 第 {item["追剧日历"][0]} 到 {item["追剧日历"][-1]} 集')
 
     for t in range(work_queue.qsize()):
         thread = Consumer(work_queue, bot)
