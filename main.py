@@ -3,7 +3,8 @@ import time
 import queue
 import threading
 from urllib import parse
-from bot import Bot
+from bot.bot import Bot
+from config import config
 from watch_calendar.timer import calendar_dict
 from worker import youku
 
@@ -14,6 +15,7 @@ class Consumer(threading.Thread):
         super().__init__()
         self.work_queue = work_queue
         self.bot = bot
+        self.timer = 600
 
     def run(self):
         while True:
@@ -29,12 +31,17 @@ class Consumer(threading.Thread):
                 server_time = server_time.tm_hour * 3600 + server_time.tm_min * 60 + server_time.tm_sec + item['偏移时间']
                 if locale_time >= server_time:
                     if check_renew(item):
-                        print('已经更新，进行通知')
-                        self.bot.send_message('', '')
+                        message = item['标题'] + ' 已更新 '
+                        if len(item['追剧日历']) > 1:
+                            message += f'第 {item["追剧日历"][0]} 到 {item["追剧日历"][-1]} 集 '
+                        else:
+                            message += f'第 {item["追剧日历"][0]} 集 '
+                        message += '快去更新吧！'
+                        self.bot.send_message(message)
                         break
                     else:
-                        item['偏移时间'] += 60  # 下次检查的秒数
-                time.sleep(20)
+                        item['偏移时间'] += self.timer  # 下次检查的秒数
+                time.sleep(self.timer // 5)
                 self.work_queue.put(item)
 
 
@@ -49,9 +56,10 @@ def check_renew(item):
 def main():
 
     bot = Bot(Bot.TG)
-    # bot.init_bot({
-    #     'token': ''
-    # })
+    bot.init_bot({
+        'token': config.bot_token,
+        'chat_id': config.chat_id
+    })
     work_queue = queue.Queue(maxsize=0)
     thread_list = []
     for item in calendar_dict:

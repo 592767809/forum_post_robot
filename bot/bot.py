@@ -24,6 +24,7 @@ class Bot(object):
         if self.bot_type == self.TG:
             assert telegram
             self.token = option['token']
+            self.user = option['chat_id']
             self.bot = telegram.Bot(self.token)
         elif self.bot_type == self.DIS:
             self.bot = requests_html.HTMLSession()
@@ -32,10 +33,10 @@ class Bot(object):
         else:
             raise Exception('未知的机器人类型')
 
-    def send_message(self, user, message):
+    def send_message(self, message):
         assert self.bot
         if self.bot_type == self.TG:
-            self.bot.sendMessage()
+            self.bot.sendMessage(self.user, message)
         elif self.bot_type == self.DIS:
             pass
         elif self.bot_type == self.WX:
