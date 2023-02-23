@@ -16,11 +16,16 @@ class Bot(object):
         self.requests = requests_html.HTMLSession()
         self.token = ''
         self.user = ''
+        self.proxies = {
+            'http': '',
+            'https': '',
+        }
 
-    @staticmethod
-    def set_proxies(port: str):
-        os.environ['HTTP_PROXY'] = 'http://127.0.0.1:' + port
-        os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:' + port
+    def set_proxies(self, port: str):
+        self.proxies = {
+            'http': 'http://127.0.0.1:' + port,
+            'https': 'http://127.0.0.1:' + port,
+        }
 
     def init_bot(self, option):
         if self.bot_type == self.TG:
@@ -30,7 +35,7 @@ class Bot(object):
             self.token = option['token']
             self.user = option['chat_id']
         elif self.bot_type == self.WX:
-            self.token = option['token']
+            self.user = option['chat_id']
         else:
             raise Exception('未知的机器人类型')
 
@@ -40,7 +45,7 @@ class Bot(object):
                 'chat_id': self.user,
                 'text': message
             }
-            self.requests.post(f'https://api.telegram.org/bot{self.token}/sendMessage', json=data, timeout=10)
+            self.requests.post(f'https://api.telegram.org/bot{self.token}/sendMessage', json=data, proxies=self.proxies)
         elif self.bot_type == self.DIS:
             headers = {
                 'authorization': self.token
@@ -50,7 +55,7 @@ class Bot(object):
                 'nonce': str((int(time.time() * 1000) - 1420070400000) << 22),
                 'tts': False
             }
-            self.requests.post(f'https://discord.com/api/v9/channels/{self.user}/messages', headers=headers, json=data)
+            self.requests.post(f'https://discord.com/api/v9/channels/{self.user}/messages', headers=headers, json=data, proxies=self.proxies)
         elif self.bot_type == self.WX:
             data = {
                 "msgtype": "text",
@@ -59,6 +64,6 @@ class Bot(object):
                     "mentioned_list": ["@all"]
                 }
             }
-            self.requests.post(f'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={self.token}', json=data)
+            self.requests.post(f'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={self.user}', json=data, proxies=self.proxies)
         else:
             raise Exception('未知的机器人类型')
